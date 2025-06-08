@@ -5,9 +5,7 @@
 ### Objectives:
 
 - Understand how full-stack web apps work end-to-end.
-
 - Build REST + GraphQL APIs from scratch.
-
 - Learn by doing, not reading.
 
 ### Tasks:

@@ -1,11 +1,31 @@
 import request from 'supertest';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createServer } from '../src/server';
 import { User } from '../src/models/user.model';
+import mongoose from 'mongoose';
 
 const app = createServer();
 
 describe('Auth API', async () => {
+  describe('Database unavailable', () => {
+    afterEach(async () => {
+      if (mongoose.connection.readyState === 0) {
+        await mongoose.connect(process.env.MONGO_URI as string);
+      }
+    });
+
+    it('should handle Mongo being completely unavailable', async () => {
+      await mongoose.connection.close(); // simulate Mongo is down
+    
+      const res = await request(app)
+        .post('/api/auth/register')
+        .send({ email: 'mongo@fail.com', password: '12345678' });
+    
+      expect(res.status).toBe(500);
+      expect(res.body.message).toBe('Something went wrong');
+    });
+  })
+  
   it('should return 400 if email is missing', async () => {
     const res = await request(app)
       .post('/api/auth/register')

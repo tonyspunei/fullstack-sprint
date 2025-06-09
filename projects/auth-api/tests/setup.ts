@@ -1,13 +1,27 @@
-import { beforeAll, afterAll, beforeEach } from 'vitest';
 import mongoose from 'mongoose';
-import { User } from '../src/models/user.model';
+import { beforeAll, afterAll, beforeEach } from 'vitest';
 
 beforeAll(async () => {
-  await mongoose.connect(process.env.MONGO_URI as string);
+  if (!process.env.MONGO_URI) {
+    throw new Error('MONGO_URI is not defined');
+  }
+  try {
+    console.log('🔌 Connecting to test database...');
+    await mongoose.connect(process.env.MONGO_URI as string, {
+      serverSelectionTimeoutMS: 5000,
+    });
+    console.log('✅ Database connected');
+  } catch(error) {
+    console.error('❌ Error connecting to MongoDB:', error);
+    process.exit(1);
+  }
 });
 
 beforeEach(async () => {
-  await mongoose.connection.db?.dropCollection('users');
+  // Only drop users collection if database is connected
+  if (mongoose.connection.readyState === 1) {
+    await mongoose.connection.db?.dropCollection('users');
+  }
 });
 
 afterAll(async () => {

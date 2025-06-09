@@ -70,6 +70,23 @@ describe('Auth API', async () => {
     expect(res.body.message).toBe('User created');
   });
 
+  it('should return 201 if user is created and have all fields', async () => {
+    const res = await request(app)
+      .post('/api/auth/register')
+      .send({ email: 'newuser@test.com', password: '12345678' });
+    expect(res.status).toBe(201);
+
+    const user = await User.findOne({ email: 'newuser@test.com' });
+    expect(user?.email).toBe('newuser@test.com');
+    expect(user?.passwordHash).toBeDefined();
+    expect(user?.verified).toBe(false);
+    expect(user?.signupSource).toBe('email');
+    expect(user?.role).toBe('user');
+    expect(user?.lastLogin).toBeNull();
+    expect(user?.createdAt).toBeDefined();
+    expect(user?.updatedAt).toBeDefined();
+  })
+
   it('should return 500 if something goes wrong', async () => {
     vi.spyOn(User, 'create').mockRejectedValue(
       new Error('Database connection failed')

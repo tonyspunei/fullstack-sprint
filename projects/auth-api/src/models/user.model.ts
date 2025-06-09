@@ -8,6 +8,8 @@ const userSchema = new mongoose.Schema(
     signupSource: { type: String, default: 'email' },
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
     lastLogin: { type: Date, default: null },
+    token: { type: String, default: null },
+    expiresIn: { type: Date, default: null },
   },
   { timestamps: true }
 );
